@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Analytics Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6;
+        }
+
+        header {
+            background-color: #1a73e8;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #1a73e8;
+        }
+
+        p {
+            margin: 8px 0;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1558b8;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+
+        .highlight {
+            background-color: #f9f871;
+            transition: background-color 0.5s ease;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Cricket Analytics Dashboard</h1>
+    </header>
+
+    <div class="container">
+        <h2>Live Scores</h2>
+        <div id="live-scores">
+            <!-- Live scores will be injected here -->
+        </div>
+
+        <button id="add-match">Add Random Match</button>
+        <button id="refresh-data">Refresh Data</button>
+    </div>
+
+    <div class="container">
+        <h2>Player Stats</h2>
+        <div id="player-stats">
+            <!-- Player stats will be injected here -->
+        </div>
+
+        <button id="sort-stats">Sort Players by Runs</button>
+    </div>
+
+    <div class="container">
+        <h2>Performance Chart</h2>
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <div class="container hidden" id="add-player-container">
+        <h2>Add Player</h2>
+        <label for="player-name">Name:</label>
+        <input type="text" id="player-name">
+        <label for="player-runs">Runs:</label>
+        <input type="number" id="player-runs">
+        <label for="player-wickets">Wickets:</label>
+        <input type="number" id="player-wickets">
+        <button id="add-player">Add Player</button>
+    </div>
+
+    <div class="container">
+        <button id="toggle-add-player">Add New Player</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Mock Data
+        let liveScores = [
+            { match: "India vs Australia", score: "India 250/4 (50 overs)" },
+            { match: "England vs Pakistan", score: "England 180/3 (40 overs)" },
+        ];
+
+        let playerStats = [
+            { name: "Virat Kohli", runs: 75, wickets: 0 },
+            { name: "Pat Cummins", runs: 15, wickets: 3 },
+        ];
+
+        // DOM Elements
+        const scoresContainer = document.getElementById('live-scores');
+        const statsContainer = document.getElementById('player-stats');
+        const refreshButton = document.getElementById('refresh-data');
+        const addMatchButton = document.getElementById('add-match');
+        const sortStatsButton = document.getElementById('sort-stats');
+        const toggleAddPlayerButton = document.getElementById('toggle-add-player');
+        const addPlayerContainer = document.getElementById('add-player-container');
+        const addPlayerButton = document.getElementById('add-player');
+
+        // Utility Function to Highlight Updates
+        const highlightElement = (element) => {
+            element.classList.add('highlight');
+            setTimeout(() => {
+                element.classList.remove('highlight');
+            }, 1000);
+        };
+
+        // Display Mock Data
+        const displayData = () => {
+            scoresContainer.innerHTML = liveScores.map(
+                (match) => `<p><strong>${match.match}</strong>: ${match.score}</p>`
+            ).join('');
+
+            statsContainer.innerHTML = playerStats.map(
+                (player) => `<p>${player.name}: ${player.runs} runs, ${player.wickets} wickets</p>`
+            ).join('');
+        };
+
+        // Add Random Match
+        const addRandomMatch = () => {
+            const teams = ["India", "Australia", "England", "Pakistan", "South Africa", "New Zealand"];
+            const team1 = teams[Math.floor(Math.random() * teams.length)];
+            const team2 = teams[Math.floor(Math.random() * teams.length)];
+            const score = `${Math.floor(Math.random() * 300)}/${Math.floor(Math.random() * 10)} (50 overs)`;
+
+            if (team1 !== team2) {
+                liveScores.push({ match: `${team1} vs ${team2}`, score });
+                displayData();
+                highlightElement(scoresContainer);
+            }
+        };
+
+        // Sort Player Stats by Runs
+        const sortPlayerStats = () => {
+            playerStats.sort((a, b) => b.runs - a.runs);
+            displayData();
+            highlightElement(statsContainer);
+        };
+
+        // Toggle Add Player Form
+        const toggleAddPlayerForm = () => {
+            addPlayerContainer.classList.toggle('hidden');
+        };
+
+        // Add New Player
+        const addNewPlayer = () => {
+            const playerName = document.getElementById('player-name').value;
+            const playerRuns = parseInt(document.getElementById('player-runs').value, 10);
+            const playerWickets = parseInt(document.getElementById('player-wickets').value, 10);
+
+            if (playerName && !isNaN(playerRuns) && !isNaN(playerWickets)) {
+                playerStats.push({ name: playerName, runs: playerRuns, wickets: playerWickets });
+                displayData();
+                renderChart();
+                highlightElement(statsContainer);
+                document.getElementById('player-name').value = '';
+                document.getElementById('player-runs').value = '';
+                document.getElementById('player-wickets').value = '';
+                toggleAddPlayerForm();
+            } else {
+                alert('Please fill out all fields correctly!');
+            }
+        };
+
+        // Chart.js Configuration
+        const renderChart = () => {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: playerStats.map(player => player.name),
+                    datasets: [{
+                        label: 'Runs Scored',
+                        data: playerStats.map(player => player.runs),
+                        backgroundColor: playerStats.map(() => `hsl(${Math.random() * 360}, 70%, 50%)`),
+                    }],
+                },
+            });
+        };
+
+        // Refresh Button Action
+        refreshButton.addEventListener('click', () => {
+            alert("This is a simulation. Data will be updated when integrated with live APIs.");
+        });
+
+        // Add Match Button Action
+        addMatchButton.addEventListener('click', addRandomMatch);
+
+        // Sort Stats Button Action
+        sortStatsButton.addEventListener('click', sortPlayerStats);
+
+        // Toggle Add Player Form Button Action
+        toggleAddPlayerButton.addEventListener('click', toggleAddPlayerForm);
+
+        // Add Player Button Action
+        addPlayerButton.addEventListener('click', addNewPlayer);
+
+        // Initialize Dashboard
+        displayData();
+        renderChart();
+    </script>
+</body>
+</html>
