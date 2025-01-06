@@ -71,7 +71,7 @@
     <div class="container">
         <h2>Live Scores</h2>
         <div id="live-scores">
-            <!-- Live scores will be injected here -->
+           
         </div>
 
         <button id="add-match">Add Random Match</button>
@@ -109,7 +109,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Mock Data
+        
         let liveScores = [
             { match: "India vs Australia", score: "India 250/4 (50 overs)" },
             { match: "England vs Pakistan", score: "England 180/3 (40 overs)" },
@@ -120,7 +120,7 @@
             { name: "Pat Cummins", runs: 15, wickets: 3 },
         ];
 
-        // DOM Elements
+        
         const scoresContainer = document.getElementById('live-scores');
         const statsContainer = document.getElementById('player-stats');
         const refreshButton = document.getElementById('refresh-data');
@@ -130,7 +130,7 @@
         const addPlayerContainer = document.getElementById('add-player-container');
         const addPlayerButton = document.getElementById('add-player');
 
-        // Utility Function to Highlight Updates
+       
         const highlightElement = (element) => {
             element.classList.add('highlight');
             setTimeout(() => {
@@ -138,7 +138,7 @@
             }, 1000);
         };
 
-        // Display Mock Data
+        
         const displayData = () => {
             scoresContainer.innerHTML = liveScores.map(
                 (match) => `<p><strong>${match.match}</strong>: ${match.score}</p>`
@@ -149,7 +149,7 @@
             ).join('');
         };
 
-        // Add Random Match
+        
         const addRandomMatch = () => {
             const teams = ["India", "Australia", "England", "Pakistan", "South Africa", "New Zealand"];
             const team1 = teams[Math.floor(Math.random() * teams.length)];
@@ -163,19 +163,19 @@
             }
         };
 
-        // Sort Player Stats by Runs
+       
         const sortPlayerStats = () => {
             playerStats.sort((a, b) => b.runs - a.runs);
             displayData();
             highlightElement(statsContainer);
         };
 
-        // Toggle Add Player Form
+        
         const toggleAddPlayerForm = () => {
             addPlayerContainer.classList.toggle('hidden');
         };
 
-        // Add New Player
+       
         const addNewPlayer = () => {
             const playerName = document.getElementById('player-name').value;
             const playerRuns = parseInt(document.getElementById('player-runs').value, 10);
@@ -195,7 +195,7 @@
             }
         };
 
-        // Chart.js Configuration
+       
         const renderChart = () => {
             const ctx = document.getElementById('myChart').getContext('2d');
             new Chart(ctx, {
@@ -211,24 +211,24 @@
             });
         };
 
-        // Refresh Button Action
+        
         refreshButton.addEventListener('click', () => {
             alert("This is a simulation. Data will be updated when integrated with live APIs.");
         });
 
-        // Add Match Button Action
+        
         addMatchButton.addEventListener('click', addRandomMatch);
 
-        // Sort Stats Button Action
+       
         sortStatsButton.addEventListener('click', sortPlayerStats);
 
-        // Toggle Add Player Form Button Action
+       
         toggleAddPlayerButton.addEventListener('click', toggleAddPlayerForm);
 
-        // Add Player Button Action
+       
         addPlayerButton.addEventListener('click', addNewPlayer);
 
-        // Initialize Dashboard
+       
         displayData();
         renderChart();
     </script>
